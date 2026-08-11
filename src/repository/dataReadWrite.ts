@@ -7,7 +7,6 @@ const fileName = path.join(process.cwd(), "src", "repository", "tickets.json");
 export async function readFromFile(file: string = fileName): Promise<Ticket[]> {
   try {
     const content = await fs.readFile(file, "utf-8");
-    // console.log(content);
     if (!content.trim()) {
       await writeToFile([]);
       return [];
@@ -36,19 +35,3 @@ export async function writeToFile(arr: Array<Ticket>, file: string = fileName) {
     throw error;
   }
 }
-
-async function testing() {
-  const val: Ticket = {
-    id: 10,
-    title: "Software bug",
-    description: "Something happened",
-    priority: "High",
-    status: "Pending",
-  };
-  const tickets = await readFromFile();
-  const updated = [...tickets, val];
-  await writeToFile(updated);
-  //   const data = await readFromFile();
-  //   console.log(data);
-}
-testing();
