@@ -35,3 +35,35 @@ export async function writeToFile(arr: Array<Ticket>, file: string = fileName) {
     throw error;
   }
 }
+
+export async function listTickets() {
+  try {
+    const tickets = await readFromFile();
+    return tickets;
+  } catch (error: unknown) {
+    throw error;
+  }
+}
+
+export async function addTicket(ticket: Ticket) {
+  try {
+    const tickets = await readFromFile();
+    const updated = [...tickets, ticket];
+    await writeToFile(updated);
+  } catch (error: unknown) {
+    throw error;
+  }
+}
+
+export async function deleteTicket(id: number) {
+  try {
+    const tickets = await readFromFile();
+    const tickIdx = tickets.findIndex((tck) => tck.id === id);
+    if (tickIdx === -1) return false;
+    const updated = tickets.filter((tck) => tck.id !== id);
+    await writeToFile(updated);
+    return true;
+  } catch (error: unknown) {
+    throw error;
+  }
+}
