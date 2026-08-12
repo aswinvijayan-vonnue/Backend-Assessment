@@ -2,7 +2,7 @@ import express from "express";
 import {
   getTicketDetails,
   enterTicket,
-} from "../Controller/ticketsEndpointHandler";
+} from "../Controller/ticketsEndpointHandler.js";
 
 const router = express.Router();
 

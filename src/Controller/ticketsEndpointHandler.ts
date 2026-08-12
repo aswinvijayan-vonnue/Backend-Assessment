@@ -10,7 +10,7 @@ export async function getTicketDetails(req: Request, res: Response) {
 
 export async function enterTicket(req: Request, res: Response) {
   try {
-    const ticket: TicketInput = req.body();
+    const ticket: TicketInput = req.body;
     await postTicket(ticket);
     res.status(201).json({ success: "Created new ticket successfully" });
   } catch (err: unknown) {

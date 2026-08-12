@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { Ticket } from "../types/types.js";
 
-const fileName = path.join(process.cwd(), "src", "repository", "tickets.json");
+const fileName = path.join(process.cwd(), "src", "Repository", "tickets.json");
 
 export async function readFromFile(file: string = fileName): Promise<Ticket[]> {
   try {
