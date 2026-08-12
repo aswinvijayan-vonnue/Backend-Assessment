@@ -4,15 +4,18 @@ import {
   listTickets,
   writeToFile,
   deleteTicket,
-} from "../repository/dataReadWrite.js";
-class ValidationError extends Error {
+} from "../Repository/dataReadWrite.js";
+export class ValidationError extends Error {
   statusCode: number;
   constructor(msg: string, statusCode: number) {
     super(msg);
     this.statusCode = statusCode;
+
+    //to make instanceof check in catch block
+    // Object.setPrototypeOf(this, ValidationError.prototype);
   }
 }
-class NotFoundError extends Error {
+export class NotFoundError extends Error {
   statusCode: number;
   constructor(msg: string, statusCode: number) {
     super(msg);
