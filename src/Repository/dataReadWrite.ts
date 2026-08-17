@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { Ticket } from "../types/types.js";
+import { Ticket, User } from "../types/types.js";
+import pool from "../db.js";
 
 const fileName = path.join(process.cwd(), "src", "Repository", "tickets.json");
 
@@ -36,20 +37,62 @@ export async function writeToFile(arr: Array<Ticket>, file: string = fileName) {
   }
 }
 
-export async function listTickets() {
+export async function listTickets(): Promise<Ticket[]> {
   try {
-    const tickets = await readFromFile();
-    return tickets;
+    const query = "SELECT * FROM support_ticket_system.TICKETS";
+    const res = await pool.query<Ticket>(query);
+    return res.rows;
   } catch (error: unknown) {
+    throw error;
+  }
+}
+
+export async function getTicketById(id: number) {
+  try {
+    const query = `SELECT * FROM support_ticket_system.TICKETS WHERE id=${id}`;
+    const res = await pool.query(query);
+    if (res.rowCount === 0) return;
+    return res.rows[0];
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function updateStatusById(id: number, status: string) {
+  try {
+    const query = `UPDATE support_ticket_system.TICKETS SET status=$2 where id=$1 RETURNING *`;
+    const res = await pool.query(query, [id, status]);
+    console.log(res.rows[0]);
+    if (res.rowCount === 0) return;
+    return res.rows[0];
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function updateAssignee(ticketId: number, assigneeId: number) {
+  try {
+    const query = `UPDATE support_ticket_system.TICKETS
+                SET assignee=$1
+                WHERE id=$2`;
+    const res = await pool.query(query, [assigneeId, ticketId]);
+    if (res.rowCount === 0) return false;
+    return true;
+  } catch (error) {
     throw error;
   }
 }
 
 export async function addTicket(ticket: Ticket) {
   try {
-    const tickets = await readFromFile();
-    const updated = [...tickets, ticket];
-    await writeToFile(updated);
+    const query = `INSERT INTO support_ticket_system.TICKETS (title,description,priority,status) VALUES ($1,$2,$3,$4) RETURNING *`;
+    const response = await pool.query<Ticket>(query, [
+      ticket.title,
+      ticket.description,
+      ticket.priority,
+      ticket.status,
+    ]);
+    return response.rows[0];
   } catch (error: unknown) {
     throw error;
   }
@@ -57,12 +100,19 @@ export async function addTicket(ticket: Ticket) {
 
 export async function deleteTicket(id: number) {
   try {
-    const tickets = await readFromFile();
-    const tickIdx = tickets.findIndex((tck) => tck.id === id);
-    if (tickIdx === -1) return false;
-    const updated = tickets.filter((tck) => tck.id !== id);
-    await writeToFile(updated);
+    const query = `DELETE FROM support_ticket_system.TICKETS WHERE id=${id}`;
+    const res = await pool.query(query);
+    if (res.rowCount === 0) return false;
     return true;
+  } catch (error: unknown) {
+    throw error;
+  }
+}
+export async function addUser(user: User) {
+  try {
+    const query = `INSERT INTO support_ticket_system.USERS (name,email) VALUES ($1,$2) RETURNING *`;
+    const res = await pool.query(query, [user.name, user.email]);
+    console.log(res.rows);
   } catch (error: unknown) {
     throw error;
   }

@@ -4,6 +4,9 @@ import {
   listTickets,
   writeToFile,
   deleteTicket,
+  getTicketById,
+  updateStatusById,
+  updateAssignee,
 } from "../Repository/dataReadWrite.js";
 export class ValidationError extends Error {
   statusCode: number;
@@ -43,13 +46,12 @@ export async function getAllTicket() {
   }
 }
 
-export async function viewSpecificTicket(id: Number) {
+export async function viewSpecificTicket(id: number) {
   try {
-    const tickets = await listTickets();
-    const ticket = tickets.find((tck) => tck.id === id);
-    if (!ticket)
+    const res = await getTicketById(id);
+    if (!res)
       throw new NotFoundError(`No record found for the provided ID:${id}`, 404);
-    return ticket;
+    return res;
   } catch (err: unknown) {
     throw err;
   }
@@ -57,46 +59,32 @@ export async function viewSpecificTicket(id: Number) {
 
 export async function updateStatus(id: number, status: string) {
   try {
-    const tickets = await listTickets();
-    const ticketIdx = tickets.findIndex((tck) => tck.id === id);
-    if (ticketIdx === -1)
-      throw new NotFoundError(`No record found for the provided ID:${id}`, 404);
     if (
       status.trim() === "" ||
       !(
         status.toLowerCase() === "pending" ||
-        status.toLowerCase() === "completed"
+        status.toLowerCase() === "completed" ||
+        status.toLowerCase() === "in progress"
       )
     )
       throw new ValidationError("Invalid status value", 422);
     const updatedStats =
       status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
-    tickets[ticketIdx] = {
-      ...tickets[ticketIdx],
-      status: updatedStats as StatusType,
-    };
-    await writeToFile(tickets);
+    const res = await updateStatusById(id, updatedStats);
+    if (!res)
+      throw new NotFoundError(`No record found for the provided ID:${id}`, 404);
   } catch (err) {
     throw err;
   }
 }
 
-export async function assignTicket(id: number, name: string) {
+export async function assignTicket(id: number, assigneeId: number) {
   try {
-    const tickets = await listTickets();
-    const ticketIdx = tickets.findIndex((tck) => tck.id === id);
-    if (ticketIdx === -1)
+    const res = await updateAssignee(id, assigneeId);
+    if (!res)
       throw new NotFoundError(`No record found for the provided ID:${id}`, 404);
-    if (name.trim() === "")
-      throw new ValidationError("Invalid assignee name", 422);
-    const updatedName =
-      name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-    tickets[ticketIdx] = {
-      ...tickets[ticketIdx],
-      assignee: updatedName,
-    };
-    await writeToFile(tickets);
   } catch (err) {
+    if ((err as any).code === "23503") throw Error("Invalid assignee id");
     throw err;
   }
 }

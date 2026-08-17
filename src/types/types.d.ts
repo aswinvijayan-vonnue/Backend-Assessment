@@ -15,3 +15,8 @@ export interface TicketInput {
   priority: "Low" | "Medium" | "High";
   status: "Pending" | "Completed";
 }
+
+export interface User {
+  name: string;
+  email: string;
+}

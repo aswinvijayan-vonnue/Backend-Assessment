@@ -32,7 +32,6 @@ describe("Testing get methods", () => {
   });
   test("Testing get with specific id in failure case", async () => {
     const res = await request(app).get("/ticket/200");
-    console.log("gottt", res.body);
     expect(res.status).toBe(404);
   });
 });
@@ -100,11 +99,11 @@ describe("Testing all patch methods", () => {
       .spyOn(ticketService, "assignTicket")
       .mockImplementation(async () => {});
     const response = await request(app)
-      .patch("/ticket/1786511561054")
-      .send({ assignee: "abcd" });
+      .patch("/ticket/1002")
+      .send({ assignee: 501 });
     expect(response.status).toBe(200);
     expect(assigneeSpy).toHaveBeenCalledTimes(1);
-    expect(assigneeSpy).toHaveBeenCalledWith(1786511561054, "abcd");
+    expect(assigneeSpy).toHaveBeenCalledWith(1002, 501);
     expect(statusSpy).not.toHaveBeenCalled();
   });
   test("testing status update in validation error case", async () => {
@@ -112,8 +111,8 @@ describe("Testing all patch methods", () => {
       .spyOn(ticketService, "assignTicket")
       .mockRejectedValue(new NotFoundError("Not found", 422));
     const response = await request(app)
-      .patch("/ticket/1786511561054")
-      .send({ assignee: "isk" });
+      .patch("/ticket/1002")
+      .send({ assignee: 500 });
     expect(response.status).toBe(422);
   });
 });

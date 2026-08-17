@@ -52,8 +52,8 @@ export async function statusUpdateController(req: Request, res: Response) {
     const id = Number(req.params.ticketId);
     const { status, assignee } = req.body;
     if (status && status.trim() !== "") await updateStatus(id, status);
-    else if (assignee && assignee.trim() !== "")
-      await assignTicket(id, assignee);
+    else if (assignee && Number(assignee))
+      await assignTicket(id, Number(assignee));
     else throw new Error("Request body cannot be empty");
     res.status(200).json({ success: "Updated successfully" });
   } catch (err: unknown) {
